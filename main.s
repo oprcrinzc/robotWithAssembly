@@ -170,6 +170,8 @@ ALIS:
 	sbic	PINB,	PB2
 	rjmp	WAITECHOLOW
 	rcall	ENDULTRASONIC
+	ldi	r20,	16
+	eor	r19,	r20
 	ret
 
 SILA:	
