@@ -17,6 +17,7 @@
 	; | go_none_stop  |
 	; | in_out_maze   | ; now
 	; | prev_in_out   | ; before 
+	; | SKIPP	  |
 	; + ============= +
 	; + = PIN ============================= +
 	; | PB4 TRIG (out)			|
@@ -52,6 +53,10 @@ LOOP:
 	rcall	DELAYMS	
 	ldi	r16,	0
 	rcall 	READULTRASONIC
+
+;	Check SKIPP flag at bit 4 in r19
+	sbrc	r19,	4
+	rjmp	LOOP
 	
 	ldi	r20,	low(580)
 	ldi	r22,	high(580)
@@ -64,7 +69,7 @@ DOA0:
 	rjmp	EDA
 DOA1:	
 	cpi	r22,	0b1010
-	breq	LOOP
+	breq	EDA
 ;	
 	rcall	FORWARD
 EDA:
@@ -113,6 +118,9 @@ SETTIMEULTRASONIC:
 	in	r23,	TCCR0A
 	in	r24,	TCCR0B
 	in	r25,	OCR0A
+;	in	r29,	
+;	in	r30,
+;	in	r31,
 	; set timer
 	ldi	r20, 	0
 	out	TCNT0,	r20
@@ -148,6 +156,12 @@ WAITECHOLOWWAIT:
 	ldi	r20,	(1<<OCF0A)
 	out	TIFR0,	r20
 	; use r16 as high r26 as low
+	
+	ldi	r20,	low(1740)
+	ldi	r22,	high(1740)
+	cp	r26,	r20
+	cpc	r16,	r22
+	brge	IRET
 
 	inc	r26
 	tst	r26
@@ -161,6 +175,11 @@ ALIS:
 SILA:	
 	inc	 r16
 	rjmp	ALIS
+
+
+IRET:	ori	r19,	(1<<4)
+	ret
+
 
 DELAY1S:
 	ldi 	r20, 	(1 << CS02) | (1 << CS00)
