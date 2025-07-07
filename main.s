@@ -98,7 +98,7 @@ STOP:
 	ldi	r22,	0b0000
 	ret
 
-READULTRASONIC:
+RUNTRIG:
 	cbi	PORTB,	PB4 ; clear trig
 	ldi	r21,	2
 	rcall	DELAYUS
@@ -106,7 +106,9 @@ READULTRASONIC:
 	ldi	r21,	5
 	rcall	DELAYUS
 	cbi	PORTB,	PB4 ; close trig
-	
+	ret
+
+SETTIMEULTRASONIC:
 	; save prev timer
 	in	r23,	TCCR0A
 	in	r24,	TCCR0B
@@ -120,6 +122,19 @@ READULTRASONIC:
 	out	TCCR0B,	r20
 	ldi	r20,	2	; 2 = 1us
 	out	OCR0A,	r20 
+	ret
+
+ENDULTRASONIC:
+	ldi	r21,	100
+	rcall	DELAYMS
+	out	TCCR0A,	r23
+	out	TCCR0B,	r24
+	out	OCR0A,	r25
+	ret
+
+READULTRASONIC:
+	rcall	RUNTRIG
+	rcall	SETTIMEULTRASONIC
 WAITECHOHIGH:
 	sbis	PINB,	PB2
 	rjmp	WAITECHOHIGH
@@ -140,11 +155,7 @@ WAITECHOLOWWAIT:
 ALIS:
 	sbic	PINB,	PB2
 	rjmp	WAITECHOLOW
-	ldi	r21,	100
-	rcall	DELAYMS
-	out	TCCR0A,	r23
-	out	TCCR0B,	r24
-	out	OCR0A,	r25
+	rcall	ENDULTRASONIC
 	ret
 
 SILA:	
