@@ -44,13 +44,20 @@ INIT: 	ldi 	r20,	0b11111100	; PD
 LOOP:
 ;	ldi	r21,	40
 ;	rcall	DELAYMS
+;	ldi	r20,	8	
+;	sbrc	r19,	4
+;	eor	r19,	r20
 	
 	sbi	PORTB,	PB5
-	mov	r21,	r16
+	ldi	r21,	250
+	rcall	DELAYMS
+	ldi	r21,	250
 	rcall	DELAYMS
 	cbi	PORTB,	PB5
-	mov	r21,	r16
+	ldi	r21,	250
 	rcall	DELAYMS	
+	ldi	r21,	250
+	rcall	DELAYMS
 	ldi	r16,	0
 	rcall 	READULTRASONIC
 
@@ -68,8 +75,8 @@ DOA0:
 	rcall	STOP
 	rjmp	EDA
 DOA1:	
-	cpi	r22,	0b1010
-	breq	EDA
+;	cpi	r22,	0b1010
+;	breq	EDA
 ;	
 	rcall	FORWARD
 EDA:
@@ -157,20 +164,22 @@ WAITECHOLOWWAIT:
 	out	TIFR0,	r20
 	; use r16 as high r26 as low
 	
+	inc	r26
+	tst	r26
+	brne	SILA
+ALIS:
 	ldi	r20,	low(1740)
 	ldi	r22,	high(1740)
 	cp	r26,	r20
 	cpc	r16,	r22
 	brge	IRET
 
-	inc	r26
-	tst	r26
-	brne	SILA
-ALIS:
+
 	sbic	PINB,	PB2
 	rjmp	WAITECHOLOW
 	rcall	ENDULTRASONIC
 	ldi	r20,	16
+	sbrc	r19,	4
 	eor	r19,	r20
 	ret
 
@@ -179,7 +188,8 @@ SILA:
 	rjmp	ALIS
 
 
-IRET:	ori	r19,	(1<<4)
+IRET:	
+	ori	r19,	(1<<4)
 	ret
 
 
